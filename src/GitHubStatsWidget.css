@@ -1,0 +1,183 @@
+/* Widget root — scoped CSS variables, overrideable by consuming project */
+.gsw-root {
+  --gsw-bg: #0d1117;
+  --gsw-bg2: #161b22;
+  --gsw-border: #30363d;
+  --gsw-text: #e6edf3;
+  --gsw-text-muted: #8b949e;
+  --gsw-accent: #d4a853;
+  --gsw-level-0: #161b22;
+  --gsw-level-1: #0e4429;
+  --gsw-level-2: #006d32;
+  --gsw-level-3: #26a641;
+  --gsw-level-4: #39d353;
+
+  background: var(--gsw-bg);
+  border: 1px solid var(--gsw-border);
+  border-radius: 8px;
+  padding: 24px;
+  font-family: inherit;
+  color: var(--gsw-text);
+}
+
+.gsw-username {
+  font-size: 13px;
+  color: var(--gsw-text-muted);
+  margin: 0 0 16px;
+}
+
+/* Side-by-side layout */
+.gsw-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 640px) {
+  .gsw-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Stat cards grid */
+.gsw-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--gsw-border);
+  border: 1px solid var(--gsw-border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.gsw-card {
+  background: var(--gsw-bg2);
+  padding: 16px;
+}
+
+.gsw-card-value {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--gsw-text);
+}
+
+.gsw-card-label {
+  font-size: 11px;
+  color: var(--gsw-text-muted);
+  margin-top: 2px;
+}
+
+/* Language bars */
+.gsw-languages {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gsw-lang-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gsw-lang-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.gsw-lang-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.gsw-lang-name {
+  color: var(--gsw-text);
+  flex: 1;
+}
+
+.gsw-lang-pct {
+  color: var(--gsw-text-muted);
+}
+
+.gsw-lang-bar-track {
+  height: 4px;
+  background: var(--gsw-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.gsw-lang-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.6s ease;
+}
+
+/* Heatmap */
+.gsw-heatmap-label {
+  font-size: 12px;
+  color: var(--gsw-text-muted);
+  margin: 0 0 8px;
+}
+
+.gsw-heatmap {
+  display: flex;
+  gap: 3px;
+}
+
+.gsw-heatmap-col {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.gsw-heatmap-cell {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.gsw-level-0 { background: var(--gsw-level-0); }
+.gsw-level-1 { background: var(--gsw-level-1); }
+.gsw-level-2 { background: var(--gsw-level-2); }
+.gsw-level-3 { background: var(--gsw-level-3); }
+.gsw-level-4 { background: var(--gsw-level-4); }
+
+/* Skeleton loading */
+.gsw-skeleton {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.gsw-skeleton-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.gsw-skeleton-card {
+  height: 72px;
+  border-radius: 6px;
+  background: var(--gsw-bg2);
+}
+
+.gsw-skeleton-heatmap {
+  height: 100px;
+  border-radius: 6px;
+  background: var(--gsw-bg2);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.gsw-pulse {
+  animation: pulse 1.5s ease-in-out infinite;
+}

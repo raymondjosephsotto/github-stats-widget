@@ -1,0 +1,29 @@
+/// <reference types="node" />
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import dts from "vite-plugin-dts";
+import { resolve } from "path";
+
+export default defineConfig({
+  plugins: [
+    react(),
+    dts({ include: ["src"] }),
+  ],
+  build: {
+    lib: {
+      entry: resolve(__dirname, "src/index.ts"),
+      name: "GitHubStatsWidget",
+      fileName: (format) => `github-stats-widget.${format}.js`,
+    },
+    rollupOptions: {
+      // React is provided by the consuming project — don't bundle it
+      external: ["react", "react-dom"],
+      output: {
+        globals: {
+          react: "React",
+          "react-dom": "ReactDOM",
+        },
+      },
+    },
+  },
+});
