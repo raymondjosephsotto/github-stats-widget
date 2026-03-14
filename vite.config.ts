@@ -7,21 +7,27 @@ import { resolve } from "path";
 export default defineConfig({
   plugins: [
     react(),
-    dts({ include: ["src"] }),
+    dts({
+      include: ["src"],
+      outDir: "dist/types",
+      insertTypesEntry: true,
+    }),
   ],
   build: {
     lib: {
       entry: resolve(__dirname, "src/index.ts"),
       name: "GitHubStatsWidget",
-      fileName: (format) => `github-stats-widget.${format}.js`,
+      formats: ["es"],
+      fileName: () => "github-stats-widget.es.js",
     },
     rollupOptions: {
-      // React is provided by the consuming project — don't bundle it
-      external: ["react", "react-dom"],
+      external: ["react", "react-dom", "react/jsx-runtime"],
       output: {
+        format: "es",
         globals: {
           react: "React",
           "react-dom": "ReactDOM",
+          "react/jsx-runtime": "ReactJSXRuntime",
         },
       },
     },

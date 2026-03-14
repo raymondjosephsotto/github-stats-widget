@@ -1,2 +1,8 @@
 export { default as GitHubStatsWidget } from "./GitHubStatsWidget";
-export type { GitHubStatsResponse, Language, ContributionDay, ContributionWeek } from "./types";
+export type {
+  GitHubStatsApiResponse,
+  GitHubStatsResponse,
+  ContributionDay,
+  ContributionWeek,
+  RepositoryStats,
+} from "./types";
