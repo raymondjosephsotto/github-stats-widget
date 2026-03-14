@@ -13,7 +13,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "dist/github-stats-widget.css"
   ],
   "scripts": {
     "build": "vite build",
