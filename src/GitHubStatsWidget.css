@@ -36,7 +36,11 @@
 
 .gsw-profile,
 .gsw-right {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0));
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.02),
+    rgba(255, 255, 255, 0)
+  );
   border: 1px solid var(--gsw-border);
   border-radius: 12px;
 }
@@ -135,11 +139,12 @@
 }
 
 .gsw-widget-callout {
-  margin-top: 14px;
+  align-self: start;
   padding: 14px 16px;
   background: rgba(212, 168, 83, 0.08);
   border: 1px solid rgba(212, 168, 83, 0.24);
   border-radius: 10px;
+  margin-top: 16px;
 }
 
 .gsw-widget-callout-title {
@@ -189,13 +194,14 @@
 }
 
 .gsw-heatmap-scroll {
-  overflow-x: hidden;
+  overflow-x: auto;
   padding-bottom: 4px;
   margin-bottom: 18px;
 }
 
 .gsw-heatmap-github {
-  width: 100%;
+  width: max-content;
+  min-width: 100%;
 }
 
 .gsw-heatmap-months {
@@ -347,11 +353,21 @@
   border-radius: 999px;
 }
 
-.gsw-level-0 { background: var(--gsw-level-0); }
-.gsw-level-1 { background: var(--gsw-level-1); }
-.gsw-level-2 { background: var(--gsw-level-2); }
-.gsw-level-3 { background: var(--gsw-level-3); }
-.gsw-level-4 { background: var(--gsw-level-4); }
+.gsw-level-0 {
+  background: var(--gsw-level-0);
+}
+.gsw-level-1 {
+  background: var(--gsw-level-1);
+}
+.gsw-level-2 {
+  background: var(--gsw-level-2);
+}
+.gsw-level-3 {
+  background: var(--gsw-level-3);
+}
+.gsw-level-4 {
+  background: var(--gsw-level-4);
+}
 
 .gsw-skeleton {
   display: grid;
@@ -378,8 +394,13 @@
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }
 
 .gsw-pulse {
@@ -430,7 +451,15 @@
     grid-template-columns: 22px 1fr;
   }
 
+  .gsw-heatmap-github {
+    min-width: max-content;
+  }
+
   .gsw-heatmap-weekday-label {
     font-size: 8px;
+  }
+  
+  .gsw-widget-callout {
+    margin-top: 24px;
   }
 }

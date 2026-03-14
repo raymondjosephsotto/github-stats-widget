@@ -7,6 +7,14 @@ interface GitHubStatsWidgetProps {
   username?: string;
 }
 
+interface HeatmapDay {
+  date: string;
+  count: number;
+  level: 0 | 1 | 2 | 3 | 4;
+  inYear: boolean;
+  isFuture: boolean;
+}
+
 const MONTH_SHORT_FORMATTER = new Intl.DateTimeFormat("en-US", {
   month: "short",
   timeZone: "UTC",
@@ -22,6 +30,7 @@ const YEAR_END_GRID = new Date(YEAR_END_DATE);
 YEAR_END_GRID.setUTCDate(YEAR_END_GRID.getUTCDate() + (6 - YEAR_END_GRID.getUTCDay()));
 const YEAR_WEEK_COUNT =
   Math.round((YEAR_END_GRID.getTime() - YEAR_START_GRID.getTime()) / (7 * 24 * 60 * 60 * 1000)) + 1;
+const WIDGET_REPO_URL = "https://github.com/raymondjosephsotto/github-stats-widget";
 
 const iconProps = {
   viewBox: "0 0 24 24",
@@ -68,6 +77,57 @@ const LinkIcon = () => (
     <path d="M14 11a5 5 0 0 1 0 7l-1.5 1.5a5 5 0 0 1-7-7L7 11" />
   </svg>
 );
+
+const parseUtcDate = (value: string) => new Date(`${value}T00:00:00Z`);
+
+const buildYearWeeks = (
+  contributionMap: Map<string, { count: number; level: 0 | 1 | 2 | 3 | 4 }>,
+  latestDate: Date,
+) => {
+  const weeks: HeatmapDay[][] = [];
+
+  for (let cursor = new Date(YEAR_START_GRID); cursor <= YEAR_END_GRID; cursor.setUTCDate(cursor.getUTCDate() + 7)) {
+    const week = Array.from({ length: 7 }, (_, index) => {
+      const dayDate = new Date(cursor);
+      dayDate.setUTCDate(cursor.getUTCDate() + index);
+      const key = dayDate.toISOString().slice(0, 10);
+      const existingDay = contributionMap.get(key);
+
+      return {
+        date: key,
+        count: existingDay?.count ?? 0,
+        level: existingDay?.level ?? 0,
+        inYear: dayDate >= YEAR_START_DATE && dayDate <= YEAR_END_DATE,
+        isFuture: dayDate > latestDate,
+      };
+    });
+
+    weeks.push(week);
+  }
+
+  return weeks;
+};
+
+const buildMonthLabels = (yearWeeks: HeatmapDay[][]) => {
+  let previousMonthLabel = "";
+
+  return yearWeeks.map((week) => {
+    const firstDayInYear = week.find((day) => day.inYear);
+
+    if (!firstDayInYear) {
+      return "";
+    }
+
+    const label = MONTH_SHORT_FORMATTER.format(parseUtcDate(firstDayInYear.date));
+
+    if (label === previousMonthLabel) {
+      return "";
+    }
+
+    previousMonthLabel = label;
+    return label;
+  });
+};
 
 const GitHubStatsWidget: React.FC<GitHubStatsWidgetProps> = ({ apiUrl, username }) => {
   const { data, loading, error } = useGitHubStats(apiUrl);
@@ -122,7 +182,6 @@ const GitHubStatsWidget: React.FC<GitHubStatsWidgetProps> = ({ apiUrl, username 
 
   const profileUsername = data.username || username || "";
   const profileUrl = profileUsername ? `https://github.com/${profileUsername}` : undefined;
-  const widgetRepoUrl = "https://github.com/raymondjosephsotto/github-stats-widget";
   const profileName = data.displayName || profileUsername || "GitHub Profile";
   const avatarFallback = profileName.trim().charAt(0).toUpperCase() || "G";
   const stats = [
@@ -135,52 +194,16 @@ const GitHubStatsWidget: React.FC<GitHubStatsWidgetProps> = ({ apiUrl, username 
   const contributionDays = data.contributions.weeks.flatMap((week) => week.days);
   const contributionMap = new Map(contributionDays.map((day) => [day.date, day]));
   const latestDay = contributionDays[contributionDays.length - 1];
-  const latestDate = latestDay ? new Date(`${latestDay.date}T00:00:00Z`) : new Date();
-  const yearWeeks: Array<Array<{ date: string; count: number; level: 0 | 1 | 2 | 3 | 4; inYear: boolean; isFuture: boolean }>> = [];
-
-  for (let cursor = new Date(YEAR_START_GRID); cursor <= YEAR_END_GRID; cursor.setUTCDate(cursor.getUTCDate() + 7)) {
-    const week = Array.from({ length: 7 }, (_, index) => {
-      const dayDate = new Date(cursor);
-      dayDate.setUTCDate(cursor.getUTCDate() + index);
-      const key = dayDate.toISOString().slice(0, 10);
-      const existingDay = contributionMap.get(key);
-      const inYear = dayDate >= YEAR_START_DATE && dayDate <= YEAR_END_DATE;
-      const isFuture = dayDate > latestDate;
-
-      return {
-        date: key,
-        count: existingDay?.count ?? 0,
-        level: existingDay?.level ?? 0,
-        inYear,
-        isFuture,
-      };
-    });
-
-    yearWeeks.push(week);
-  }
-
-  let previousMonthLabel = "";
-  const monthLabels = yearWeeks.map((week) => {
-    const firstDayInYear = week.find((day) => day.inYear);
-
-    if (!firstDayInYear) {
-      return "";
-    }
-
-    const date = new Date(`${firstDayInYear.date}T00:00:00Z`);
-    const label = MONTH_SHORT_FORMATTER.format(date);
-
-    if (label === previousMonthLabel) {
-      return "";
-    }
-
-    previousMonthLabel = label;
-    return label;
-  });
+  const latestDate = latestDay ? parseUtcDate(latestDay.date) : new Date();
+  const yearWeeks = buildYearWeeks(contributionMap, latestDate);
+  const monthLabels = buildMonthLabels(yearWeeks);
 
   const heatmapStyle = {
     "--gsw-cell-size": `${cellSize}px`,
     "--gsw-cell-gap": `${HEATMAP_GAP}px`,
+  } as React.CSSProperties;
+  const heatmapColumnsStyle = {
+    gridTemplateColumns: `repeat(${yearWeeks.length}, ${cellSize}px)`,
   } as React.CSSProperties;
 
   return (
@@ -232,18 +255,23 @@ const GitHubStatsWidget: React.FC<GitHubStatsWidgetProps> = ({ apiUrl, username 
               <span>Custom GitHub Widget</span>
             </div>
             <p className="gsw-widget-callout-copy">
-              This custom widget was created to showcase live GitHub activity.
+              This custom widget was created to showcase live GitHub activity with a reusable,
+              responsive layout for profile metadata, contribution history, and top languages.
               {" "}
               <a
                 className="gsw-widget-callout-link"
-                href={widgetRepoUrl}
+                href={WIDGET_REPO_URL}
                 target="_blank"
                 rel="noreferrer"
               >
                 View github-stats-widget on GitHub
               </a>
               {" "}
-              to add it to your own website.
+              to explore the code, connect it to
+              {" "}
+              <code>github-stats-api</code>
+              {" "}
+              and add it to your own website.
             </p>
           </div>
         </div>
@@ -261,7 +289,7 @@ const GitHubStatsWidget: React.FC<GitHubStatsWidgetProps> = ({ apiUrl, username 
                 <div className="gsw-heatmap-corner" />
                 <div
                   className="gsw-heatmap-month-row"
-                  style={{ gridTemplateColumns: `repeat(${yearWeeks.length}, minmax(0, 1fr))` }}
+                  style={heatmapColumnsStyle}
                 >
                   {monthLabels.map((label, index) => (
                     <span key={`${label}-${index}`} className="gsw-heatmap-month-label">
@@ -281,7 +309,7 @@ const GitHubStatsWidget: React.FC<GitHubStatsWidgetProps> = ({ apiUrl, username 
                 <div
                   ref={weekColumnsRef}
                   className="gsw-heatmap-week-columns"
-                  style={{ gridTemplateColumns: `repeat(${yearWeeks.length}, minmax(0, 1fr))` }}
+                  style={heatmapColumnsStyle}
                 >
                   {yearWeeks.map((week, weekIndex) => (
                     <div key={weekIndex} className="gsw-heatmap-week-column">

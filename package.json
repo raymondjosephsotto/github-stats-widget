@@ -2,9 +2,16 @@
   "name": "github-stats-widget",
   "version": "1.0.0",
   "description": "A React component that displays GitHub profile stats — plug in your own API endpoint",
-  "main": "./dist/github-stats-widget.umd.js",
+  "main": "./dist/github-stats-widget.es.js",
   "module": "./dist/github-stats-widget.es.js",
   "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/github-stats-widget.es.js",
+      "default": "./dist/github-stats-widget.es.js"
+    }
+  },
   "files": [
     "dist"
   ],

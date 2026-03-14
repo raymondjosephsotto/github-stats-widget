@@ -39,20 +39,35 @@ const useGitHubStats = (apiUrl: string): UseGitHubStatsResult => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     const fetchStats = async () => {
+      setLoading(true);
+      setError(null);
+
       try {
-        const response = await fetch(apiUrl);
+        const response = await fetch(apiUrl, { signal: controller.signal });
         if (!response.ok) throw new Error(`API error: ${response.status}`);
         const json = await response.json() as GitHubStatsApiResponse;
         setData(normalizeGitHubStats(json));
-      } catch (err: any) {
-        setError(err.message ?? "Failed to fetch stats");
+      } catch (err: unknown) {
+        if (err instanceof DOMException && err.name === "AbortError") {
+          return;
+        }
+
+        const message = err instanceof Error ? err.message : "Failed to fetch stats";
+        setError(message);
+        setData(null);
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchStats();
+
+    return () => controller.abort();
   }, [apiUrl]);
 
   return { data, loading, error };
