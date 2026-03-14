@@ -1,5 +1,5 @@
 {
-  "name": "github-stats-widget",
+  "name": "@raymondjosephsotto/github-stats-widget",
   "version": "1.0.0",
   "description": "A React component that displays GitHub profile stats — plug in your own API endpoint",
   "main": "./dist/github-stats-widget.es.js",

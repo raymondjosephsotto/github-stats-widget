@@ -3,6 +3,12 @@ A React widget for displaying GitHub profile metadata, repository totals, contri
 
 This project is designed to pair with [`github-stats-api`](https://github.com/raymondjosephsotto/github-stats-api), which collects and normalizes GitHub data for the widget to render.
 
+Published package:
+
+```bash
+npm install @raymondjosephsotto/github-stats-widget
+```
+
 ## What It Shows
 
 - Profile avatar, display name, and username
@@ -81,23 +87,15 @@ The widget itself is intentionally presentation-focused. It does not call GitHub
 Install the package in your React app:
 
 ```bash
-npm install github-stats-widget
+npm install @raymondjosephsotto/github-stats-widget
 ```
-
-If you are working locally with this repository before publishing, build it first:
-
-```bash
-npm run build
-```
-
-Then consume the built package from another project using your preferred local package workflow.
 
 ## Usage
 
 Import the widget and pass your deployed API endpoint:
 
 ```tsx
-import { GitHubStatsWidget } from "github-stats-widget";
+import { GitHubStatsWidget } from "@raymondjosephsotto/github-stats-widget";
 
 export default function Home() {
   return (
@@ -114,6 +112,32 @@ You can also pass an optional `username` prop. The widget will prefer the userna
   username="yourusername"
 />
 ```
+
+## Clone Or Fork Setup
+
+If you clone or fork this repository, the usual workflow is:
+
+1. Install dependencies
+2. Run the local preview app
+3. Build the package
+4. Publish your own npm package name if you want to consume it from another repository or CI environment
+
+Initial setup:
+
+```bash
+npm install
+npm run dev
+```
+
+If you are creating your own fork for publishing, update [`package.json`](/Users/raymond/Desktop/github-stats-widget/package.json) with your own package name before publishing. A scoped name is recommended:
+
+```json
+{
+  "name": "@your-npm-username/github-stats-widget"
+}
+```
+
+This is especially important if another project installs the widget through GitHub Actions, Vercel, or any remote CI environment, because local file references such as `file:../github-stats-widget` will not exist there.
 
 ## Local Development
 
@@ -136,6 +160,74 @@ You can also set a default API URL through an environment variable:
 ```bash
 VITE_GITHUB_STATS_API_URL=https://your-api.vercel.app/api/github npm run dev
 ```
+
+## Publishing
+
+To publish the package to npm:
+
+```bash
+npm login
+npm run build
+npm publish --access public
+```
+
+If your npm account requires two-factor authentication for publishing, you may need:
+
+```bash
+npm publish --access public --otp=123456
+```
+
+If you fork this repository, publish under your own scoped package name and then update your consuming app to install that package from npm instead of using a local `file:` reference.
+
+## Automated Versioning And Publishing
+
+This repository can be configured to automate versioning and publishing with GitHub Actions.
+
+Included workflows:
+
+- [ci.yml](/Users/raymond/Desktop/github-stats-widget/.github/workflows/ci.yml): runs `npm ci` and `npm run build` on every push to `main` and every pull request
+- [release-please.yml](/Users/raymond/Desktop/github-stats-widget/.github/workflows/release-please.yml): watches `main`, opens or updates a release PR, and manages version bumps
+- [publish.yml](/Users/raymond/Desktop/github-stats-widget/.github/workflows/publish.yml): publishes to npm when a GitHub Release is published from `main`
+
+Supporting config:
+
+- [release-please-config.json](/Users/raymond/Desktop/github-stats-widget/release-please-config.json)
+- [.release-please-manifest.json](/Users/raymond/Desktop/github-stats-widget/.release-please-manifest.json)
+
+### How It Works
+
+1. Push changes to `main`
+2. Release Please opens or updates a release PR with the next version
+3. When that PR is merged, Release Please creates a GitHub Release
+4. The publish workflow builds the package and publishes it to npm
+
+### Required Repository Secret
+
+Add this GitHub Actions secret in your repository settings:
+
+- `NPM_TOKEN`: an npm token with permission to publish this package
+
+### Commit Message Guidance
+
+Release Please works best when commit messages follow conventional commit style, for example:
+
+```bash
+feat: add top languages section
+fix: correct heatmap weekday alignment
+docs: update README publishing instructions
+```
+
+Typical version behavior:
+
+- `fix:` -> patch release
+- `feat:` -> minor release
+- `feat!:` or a breaking change footer -> major release
+
+If you fork this project, remember to update:
+
+- [`package.json`](/Users/raymond/Desktop/github-stats-widget/package.json) package name
+- [release-please-config.json](/Users/raymond/Desktop/github-stats-widget/release-please-config.json) package name
+- npm secret configuration in your forked repository
 
 ## Build
 
@@ -180,8 +272,9 @@ The widget ships with scoped CSS classes prefixed with `gsw-` and uses CSS varia
 - The widget expects contribution data as `weeks -> days`, similar to GitHub’s contribution calendar.
 - The heatmap layout is responsive and computes cell sizing based on available width.
 - If you change the API contract, update both [`src/types.ts`](/Users/raymond/Desktop/github-stats-widget/src/types.ts) and the normalization logic in [`src/useGitHubStats.ts`](/Users/raymond/Desktop/github-stats-widget/src/useGitHubStats.ts).
+- If another repository consumes this widget, prefer installing the published npm package instead of using a local `file:` dependency so CI and deployments can resolve it correctly.
 
 ## Related Repositories
 
-- Widget: [`github-stats-widget`](https://github.com/raymondjosephsotto/github-stats-widget)
+- Widget repo: [`github-stats-widget`](https://github.com/raymondjosephsotto/github-stats-widget)
 - API: [`github-stats-api`](https://github.com/raymondjosephsotto/github-stats-api)
