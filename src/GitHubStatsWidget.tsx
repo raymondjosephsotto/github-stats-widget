@@ -20,7 +20,7 @@ const MONTH_SHORT_FORMATTER = new Intl.DateTimeFormat("en-US", {
   timeZone: "UTC",
 });
 const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const DISPLAY_YEAR = 2026;
+const DISPLAY_YEAR = new Date().getFullYear();
 const HEATMAP_GAP = 2;
 const YEAR_START_DATE = new Date(Date.UTC(DISPLAY_YEAR, 0, 1));
 const YEAR_END_DATE = new Date(Date.UTC(DISPLAY_YEAR, 11, 31));
@@ -278,7 +278,7 @@ const GitHubStatsWidget: React.FC<GitHubStatsWidgetProps> = ({ apiUrl, username 
 
         <div className="gsw-right">
           <div className="gsw-heatmap-header">
-            <p className="gsw-heatmap-heading">2026 Contributions</p>
+            <p className="gsw-heatmap-heading">{DISPLAY_YEAR} Contributions</p>
             <p className="gsw-heatmap-label">
               {`${data.contributions.total} contributions in ${DISPLAY_YEAR}`}
             </p>
@@ -311,19 +311,17 @@ const GitHubStatsWidget: React.FC<GitHubStatsWidgetProps> = ({ apiUrl, username 
                   className="gsw-heatmap-week-columns"
                   style={heatmapColumnsStyle}
                 >
-                  {yearWeeks.map((week, weekIndex) => (
-                    <div key={weekIndex} className="gsw-heatmap-week-column">
-                      {week.map((day) => {
-                        return (
-                          <div
-                            key={day.date}
-                            className={`gsw-heatmap-cell ${day.inYear ? `gsw-level-${day.level}` : "gsw-level-0"} ${
-                              day.inYear && !day.isFuture ? "" : "gsw-heatmap-cell-muted"
-                            }`}
-                            title={`${day.date}: ${day.count} contributions`}
-                          />
-                        );
-                      })}
+                  {yearWeeks.map((week) => (
+                    <div key={week[0]?.date} className="gsw-heatmap-week-column">
+                      {week.map((day) => (
+                        <div
+                          key={day.date}
+                          className={`gsw-heatmap-cell ${day.inYear ? `gsw-level-${day.level}` : "gsw-level-0"} ${
+                            day.inYear && !day.isFuture ? "" : "gsw-heatmap-cell-muted"
+                          }`}
+                          title={`${day.date}: ${day.count} contributions`}
+                        />
+                      ))}
                     </div>
                   ))}
                 </div>
